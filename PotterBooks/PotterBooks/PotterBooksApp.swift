@@ -14,7 +14,7 @@ struct PotterBooksApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView(viewModel: HomeViewModel(booksRepository: RemoteBooksRepository()))
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
