@@ -17,10 +17,14 @@ final class LocalBooksRepository: BooksRepositoryProtocol {
         do {
             let localBooks = try fetchBooksFromCoreData()
             if !localBooks.isEmpty {
+                
+                //MARK: HANDLE
+                //syncRemoteToLocal()
+                
                 return localBooks.map({$0.toDomain()})
             }
         } catch {
-            print("Local fetch error: \(error)")
+            throw error
         }
         
         // Step 2: Fetch from remote & update local
@@ -33,13 +37,29 @@ final class LocalBooksRepository: BooksRepositoryProtocol {
         }
     }
     
-    func fetchBooksFromCoreData() throws -> [BookEntity] {
+    func searchBooks(query: String) async throws -> [BooksListItem] {
+        let request = BookEntity.fetchRequest()
+        
+        if !query.isEmpty {
+            // Search in both title and description
+            request.predicate = NSPredicate(
+                format: "title CONTAINS[cd] %@ OR bookDescription CONTAINS[cd] %@",
+                query, query
+            )
+        }
+        
+        let searchResults = try context.fetch(request)
+        
+        return searchResults.map({$0.toDomain()})
+    }
+    
+    private func fetchBooksFromCoreData() throws -> [BookEntity] {
         let request = BookEntity.fetchRequest()
         let entities = try context.fetch(request)
         return entities
     }
     
-    func saveBooks(_ books: [BooksListItem]) throws {
+    private func saveBooks(_ books: [BooksListItem]) throws {
         for book in books {
             let request = BookEntity.fetchRequest()
             request.predicate = NSPredicate(format: "number == %d", book.number)
@@ -53,5 +73,9 @@ final class LocalBooksRepository: BooksRepositoryProtocol {
             existing.pages = book.pages ?? 0
         }
         try context.save()
+    }
+    
+    private func syncRemoteToLocal() {
+        
     }
 }

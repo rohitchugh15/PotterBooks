@@ -22,28 +22,56 @@ class HomeViewModel: ObservableObject {
     
     @Published private(set) var booksDataSource: [BooksListItem] = []
     
-    private var allBooks: [BooksListItem] = []
-    
     private let booksRepository: BooksRepositoryProtocol
+    
+    private(set) var searchSubject = CurrentValueSubject<String, Never>("")
+    
+    private var subCancellables: Set<AnyCancellable> = []
     
     init(booksRepository: BooksRepositoryProtocol) {
         self.booksRepository = booksRepository
+        setupSearchPub()
     }
     
-    func fetchAllBooks() {
-        if self.allBooks.isEmpty {
-            self.state = .loading
-            Task {
-                let fetchedBooks = try? await self.booksRepository.fetchBooks()
-                self.allBooks = fetchedBooks ?? []
-                await MainActor.run {
-                    self.state = .loaded
-                    self.booksDataSource = self.allBooks
-                }
-            }
+    private func setupSearchPub() {
+        searchSubject
+            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
+            .sink { [weak self] searchQuery in
+                self?.executeSearchBooks(query: searchQuery)
+            }.store(in: &subCancellables)
+    }
+    
+    func searchBooks(query:String) {
+        searchSubject.send(query)
+    }
+    
+    private func executeSearchBooks(query:String) {
+        if query.isEmpty {
+            fetchAllBooks()
         } else {
-            self.state = .loaded
-            self.booksDataSource = self.allBooks
+            fetchBooks(searchQuery: query)
+        }
+    }
+    
+    private func fetchBooks(searchQuery: String) {
+        self.state = .loading
+        Task {
+            let fetchedBooks = try? await self.booksRepository.searchBooks(query: searchQuery)
+            await MainActor.run {
+                self.state = .loaded
+                self.booksDataSource = fetchedBooks ?? []
+            }
+        }
+    }
+    
+    private func fetchAllBooks() {
+        self.state = .loading
+        Task {
+            let fetchedBooks = try? await self.booksRepository.fetchBooks()
+            await MainActor.run {
+                self.state = .loaded
+                self.booksDataSource = fetchedBooks ?? []
+            }
         }
     }
 }

@@ -7,7 +7,11 @@
 
 import Foundation
 
-class RemoteBooksRepository: BooksRepositoryProtocol {
+final class RemoteBooksRepository: BooksRepositoryProtocol {
+    
+    func searchBooks(query: String) async throws -> [BooksListItem] {
+        return []
+    }
     
     func fetchBooks() async throws -> [BooksListItem] {
         let fetchBooksURLRequest = BookRequestBuilder.books.urlRequest()

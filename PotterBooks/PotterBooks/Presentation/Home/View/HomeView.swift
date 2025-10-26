@@ -34,9 +34,11 @@ struct HomeView: View {
                             ProgressView()
                         }
                     }
-                    VStack {
-                        Text(book.title)
-                        Text("Released: \(book.bookDescription ?? "-")")
+                    
+                    VStack(alignment: .leading) {
+                        Text(book.title).bold()
+                        Text("Released: \(book.releasedYear ?? "-")")
+                            .font(.subheadline)
                     }
                 }
             }
@@ -59,10 +61,7 @@ struct HomeView: View {
             })
             .searchable(text: $searchQuery)
             .onChange(of: searchQuery) {
-                //Execute search
-            }
-            .task {
-                viewModel.fetchAllBooks()
+                self.viewModel.searchBooks(query: searchQuery)
             }
         }
     }

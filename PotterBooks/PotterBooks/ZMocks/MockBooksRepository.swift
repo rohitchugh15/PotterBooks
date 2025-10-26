@@ -9,6 +9,10 @@ import Foundation
 
 class MockBooksRepository: BooksRepositoryProtocol {
     
+    func searchBooks(query: String) async throws -> [BooksListItem] {
+        return []
+    }
+    
     func fetchBooks() async throws -> [BooksListItem] {
         guard let jsonData = Bundle(for: Self.self).dataFromJson(fileName: "BooksMockResponse") else {
             throw NetworkError.invalidResponse

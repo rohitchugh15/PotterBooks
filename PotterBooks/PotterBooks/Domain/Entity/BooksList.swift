@@ -22,6 +22,19 @@ struct BooksListItem: Identifiable {
     var pages: Int32?
     var cover: URL?
     var releaseDate: Date?
+    var releasedYear: String?
+    
+    init(number: Int64, index: Int32, title: String, originalTitle: String? = nil, bookDescription: String? = nil, pages: Int32? = nil, cover: URL? = nil, releaseDate: Date? = nil) {
+        self.number = number
+        self.index = index
+        self.title = title
+        self.originalTitle = originalTitle
+        self.bookDescription = bookDescription
+        self.pages = pages
+        self.cover = cover
+        self.releaseDate = releaseDate
+        self.releasedYear = self.releaseDate?.toString(formatter: "yyyy")
+    }
 }
 
 //MARK: Book DTO

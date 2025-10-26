@@ -11,5 +11,5 @@ protocol BooksRepositoryProtocol {
     
     func fetchBooks() async throws -> [BooksListItem]
     
-//    func fetchBooks(searchQuery: String) async throws -> [BooksListItem]
+    func searchBooks(query: String) async throws -> [BooksListItem]
 }
