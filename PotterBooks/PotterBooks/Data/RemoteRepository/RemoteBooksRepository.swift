@@ -44,4 +44,12 @@ final class RemoteBooksRepository: BooksRepositoryProtocol {
             throw error
         }
     }
+    
+    func refreshBooks() async throws -> [BooksListItem] {
+        do {
+            return try await fetchBooks()
+        } catch {
+            throw error
+        }
+    }
 }

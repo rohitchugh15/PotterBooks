@@ -45,6 +45,14 @@ class HomeViewModel: ObservableObject {
         searchSubject.send(query)
     }
     
+    func refreshBooks() async {
+        let fetchedBooks = try? await self.booksRepository.refreshBooks()
+        await MainActor.run {
+            self.state = .loaded
+            self.booksDataSource = fetchedBooks ?? []
+        }
+    }
+    
     private func executeSearchBooks(query:String) {
         if query.isEmpty {
             fetchAllBooks()

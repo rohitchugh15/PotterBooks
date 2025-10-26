@@ -12,6 +12,12 @@ final class LocalBooksRepository: BooksRepositoryProtocol {
     
     private let context = PersistenceController.shared.container.viewContext
     
+    var remoteBooksRepository: BooksRepositoryProtocol
+    
+    init(remoteBooksRepository: BooksRepositoryProtocol) {
+        self.remoteBooksRepository = remoteBooksRepository
+    }
+    
     func fetchBooks() async throws -> [BooksListItem] {
         // 1: Load from local
         do {
@@ -27,11 +33,9 @@ final class LocalBooksRepository: BooksRepositoryProtocol {
             throw error
         }
         
-        // Step 2: Fetch from remote & update local
+        // Step 2: Fetch from remote & save to local
         do {
-            let remoteBooks = try await RemoteBooksRepository().fetchBooks()
-            try saveBooks(remoteBooks)
-            return remoteBooks
+            return try await fetchFromRemoteSaveToLocal()
         } catch {
             throw error
         }
@@ -51,6 +55,24 @@ final class LocalBooksRepository: BooksRepositoryProtocol {
         let searchResults = try context.fetch(request)
         
         return searchResults.map({$0.toDomain()})
+    }
+    
+    func refreshBooks() async throws -> [BooksListItem] {
+        do {
+            return try await fetchFromRemoteSaveToLocal()
+        } catch {
+            throw error
+        }
+    }
+    
+    private func fetchFromRemoteSaveToLocal() async throws -> [BooksListItem] {
+        do {
+            let remoteBooks = try await self.remoteBooksRepository.fetchBooks()
+            try saveBooks(remoteBooks)
+            return remoteBooks
+        } catch {
+            throw error
+        }
     }
     
     private func fetchBooksFromCoreData() throws -> [BookEntity] {
@@ -73,9 +95,5 @@ final class LocalBooksRepository: BooksRepositoryProtocol {
             existing.pages = book.pages ?? 0
         }
         try context.save()
-    }
-    
-    private func syncRemoteToLocal() {
-        
     }
 }

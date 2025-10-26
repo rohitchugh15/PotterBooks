@@ -63,6 +63,9 @@ struct HomeView: View {
             .onChange(of: searchQuery) {
                 self.viewModel.searchBooks(query: searchQuery)
             }
+            .refreshable {
+                await self.viewModel.refreshBooks()
+            }
         }
     }
 }
