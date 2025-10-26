@@ -68,5 +68,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(viewModel: HomeViewModel(booksRepository: RemoteBooksRepository()))
+    HomeView(viewModel: HomeViewModel(booksRepository: MockBooksRepository()))
 }

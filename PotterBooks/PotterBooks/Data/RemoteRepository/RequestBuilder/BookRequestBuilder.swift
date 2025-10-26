@@ -9,33 +9,29 @@ import Foundation
 
 enum BookRequestBuilder {
     case books
-    case search(String)
+    case search(Encodable)
 }
 
 extension BookRequestBuilder: URLRequestBuilder {
     
     var httpMethod:HTTPMethod {
         switch self {
-        case .search(_):
-            return .GET
-        case .books:
+        case .search(_), .books:
             return .GET
         }
     }
 
     var requestBody:Data? {
         switch self {
-        case .search(_):
-            return nil
-        case .books:
+        case .search(_), .books:
             return nil
         }
     }
 
     var endPoint:String {
         switch self {
-        case .search(let searchQuery):
-            return "/books?"//.appending(searchQuery.getURLQuery())
+        case .search(let searchRequest):
+            return "/books?".appending(searchRequest.getURLQuery())
         case .books:
             return "/books"
         }

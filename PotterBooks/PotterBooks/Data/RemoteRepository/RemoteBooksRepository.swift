@@ -10,7 +10,22 @@ import Foundation
 final class RemoteBooksRepository: BooksRepositoryProtocol {
     
     func searchBooks(query: String) async throws -> [BooksListItem] {
-        return []
+        let bookSerchRequest = BookSearchRequestDTO(search: query)
+        
+        let bookSearchURLRequest = BookRequestBuilder.search(bookSerchRequest).urlRequest()
+        
+        do {
+            let decoder = JSONDecoder()
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM dd, yyyy"
+            decoder.dateDecodingStrategy = .formatted(dateFormatter)
+            
+            let booksDTO: [BookDTO] = try await RequestHandler(decoder: decoder).sendRequest(bookSearchURLRequest, as: [BookDTO].self)
+            return booksDTO.map({$0.toDomain()})
+        } catch {
+            throw error
+        }
     }
     
     func fetchBooks() async throws -> [BooksListItem] {
