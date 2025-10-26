@@ -10,13 +10,13 @@ import Foundation
 //MARK: BookDTO
 struct BookDTO: Decodable {
     
-    let index:Int
-    let number: Int
+    let number: Int64
+    let index:Int32
     let title: String
     var bookDescription: String?
     var releaseDate: Date?
     var originalTitle: String?
-    var pages: Int?
+    var pages: Int32?
     var cover: URL?
     
     enum CodingKeys: String, CodingKey {

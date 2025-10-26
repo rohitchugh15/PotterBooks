@@ -36,7 +36,7 @@ struct HomeView: View {
                     }
                     VStack {
                         Text(book.title)
-                        Text("Released: \(book.releaseYear ?? "-")")
+                        Text("Released: \(book.bookDescription ?? "-")")
                     }
                 }
             }

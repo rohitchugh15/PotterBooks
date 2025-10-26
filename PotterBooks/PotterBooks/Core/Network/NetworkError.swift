@@ -11,7 +11,6 @@ enum NetworkError: Error {
     case invalidURL
     case invalidResponse
     case offline
-    case transport(Error)
-    case server(status: Int, body: Data?)
+    case server(Int)
     case decoding(Error)
 }

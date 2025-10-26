@@ -30,7 +30,7 @@ struct RequestHandler {
             throw NetworkError.invalidResponse
         }
         guard (200...299).contains(httpResponse.statusCode) else {
-            throw NetworkError.server(status: httpResponse.statusCode, body: data)
+            throw NetworkError.server(httpResponse.statusCode)
         }
     }
     
