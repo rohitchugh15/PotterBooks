@@ -15,6 +15,7 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack {
+            
             List(viewModel.booksDataSource) { book in
                 HStack {
                     AsyncImage(url: book.cover) { phase in
@@ -43,22 +44,29 @@ struct HomeView: View {
                 }
             }
             .listStyle(.plain)
-            .overlay(content: {
+            .overlay(alignment: .top) {
                 switch viewModel.state {
                 case .loading:
                     ProgressView("Loading...")
                 case .error(let errorMessage):
                     Text(errorMessage)
-                case .empty:
-                    Text("Please search by book title")
+                        .padding(4)
+                        .background(Color.red.opacity(0.9))
+                        .cornerRadius(4)
                 case .loaded:
                     if viewModel.booksDataSource.isEmpty {
-                        Text("No book found")
+                        Text("No books found")
+                            .padding(4)
+                            .background(Color.red.opacity(0.9))
+                            .cornerRadius(4)
                     }
                 case .offline:
-                    Text("Please check your internet connection")
+                    Text("No internet connection")
+                        .padding(4)
+                        .background(Color.red.opacity(0.9))
+                        .cornerRadius(4)
                 }
-            })
+            }
             .searchable(text: $searchQuery)
             .onChange(of: searchQuery) {
                 self.viewModel.searchBooks(query: searchQuery)
@@ -66,6 +74,19 @@ struct HomeView: View {
             .refreshable {
                 await self.viewModel.refreshBooks()
             }
+            .navigationTitle("Potter Books")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if viewModel.isOnline {
+                        Image(systemName: "wifi")
+                            .foregroundStyle(Color.green.gradient)
+                    } else {
+                        Image(systemName: "wifi.slash")
+                            .foregroundStyle(Color.red.gradient)
+                    }
+                }
+            }
+            
         }
     }
 }

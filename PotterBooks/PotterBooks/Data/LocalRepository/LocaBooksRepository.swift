@@ -33,6 +33,10 @@ final class LocalBooksRepository: BooksRepositoryProtocol {
             throw error
         }
         
+        if !NetworkMonitor.shared.isConnected {
+            throw NetworkError.offline
+        }
+        
         // Step 2: Fetch from remote & save to local
         do {
             return try await fetchFromRemoteSaveToLocal()

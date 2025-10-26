@@ -9,7 +9,6 @@ import Foundation
 import Combine
 
 enum MovieSearchViewModelState {
-    case empty
     case offline
     case loading
     case loaded
@@ -18,9 +17,13 @@ enum MovieSearchViewModelState {
 
 class HomeViewModel: ObservableObject {
     
-    @Published private(set) var state: MovieSearchViewModelState = .empty
+    @Published private(set) var state: MovieSearchViewModelState = .loading
     
     @Published private(set) var booksDataSource: [BooksListItem] = []
+    
+    @Published private(set) var isOnline: Bool = true
+    
+    @Published var showErrorAlert: Bool = false
     
     private let booksRepository: BooksRepositoryProtocol
     
@@ -30,7 +33,12 @@ class HomeViewModel: ObservableObject {
     
     init(booksRepository: BooksRepositoryProtocol) {
         self.booksRepository = booksRepository
+        
         setupSearchPub()
+        
+        NetworkMonitor.shared.$isConnected
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$isOnline)
     }
     
     private func setupSearchPub() {
@@ -46,10 +54,14 @@ class HomeViewModel: ObservableObject {
     }
     
     func refreshBooks() async {
-        let fetchedBooks = try? await self.booksRepository.refreshBooks()
-        await MainActor.run {
-            self.state = .loaded
-            self.booksDataSource = fetchedBooks ?? []
+        if self.isOnline {
+            let fetchedBooks = try? await self.booksRepository.refreshBooks()
+            await MainActor.run {
+                self.state = .loaded
+                self.booksDataSource = fetchedBooks ?? []
+            }
+        } else {
+            self.state = .error("No internet connection")
         }
     }
     
@@ -75,10 +87,19 @@ class HomeViewModel: ObservableObject {
     private func fetchAllBooks() {
         self.state = .loading
         Task {
-            let fetchedBooks = try? await self.booksRepository.fetchBooks()
-            await MainActor.run {
-                self.state = .loaded
-                self.booksDataSource = fetchedBooks ?? []
+            do {
+                let fetchedBooks = try await self.booksRepository.fetchBooks()
+                await MainActor.run {
+                    self.state = .loaded
+                    self.booksDataSource = fetchedBooks
+                }
+            } catch {
+                switch error {
+                case NetworkError.offline:
+                    self.state = .offline
+                default:
+                    self.state = .error(error.localizedDescription)
+                }
             }
         }
     }
