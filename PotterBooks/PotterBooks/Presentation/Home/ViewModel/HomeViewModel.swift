@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-enum MovieSearchViewModelState {
+enum MovieSearchViewModelState: Equatable {
     case offline
     case loading
     case loaded
@@ -22,8 +22,6 @@ class HomeViewModel: ObservableObject {
     @Published private(set) var booksDataSource: [BooksListItem] = []
     
     @Published private(set) var isOnline: Bool = true
-    
-    @Published var showErrorAlert: Bool = false
     
     private let booksRepository: BooksRepositoryProtocol
     
@@ -104,3 +102,12 @@ class HomeViewModel: ObservableObject {
         }
     }
 }
+
+#if DEBUG
+extension HomeViewModel {
+    
+    func testable_fetchAllBooks() {
+        self.fetchAllBooks()
+    }
+}
+#endif
