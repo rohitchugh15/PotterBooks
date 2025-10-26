@@ -51,6 +51,7 @@ Core Concepts
 Prerequisites
 * Xcode 14+
 * Swift 5.9+
+
 Steps
 1. Clone the repository:
 git clone https://github.com/rohitchugh15/PotterBooks.git
@@ -61,5 +62,7 @@ open PotterBooks.xcodeproj
 
 📱 Screenshots
 List of books with poster, title, release year, and rating.
-Simulator Screenshot - iPhone 17 - 2025-10-27 at 01.34.56.png
-Simulator Screenshot - iPhone 17 - 2025-10-27 at 01.34.47.png
+![List of Books](ListOfBooks.png)
+
+![Search Books](SearchBooks.png)
+
