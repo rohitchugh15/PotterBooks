@@ -50,7 +50,8 @@ Core Concepts
 ⚙️ Setup Instructions
 Prerequisites
 * Xcode 14+
-* Swift 5.9+
+* Swift 5+
+* iOS 17.6+
 
 Steps
 1. Clone the repository:
